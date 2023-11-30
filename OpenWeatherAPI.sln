@@ -1,25 +1,55 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34018.315
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWeatherAPI", "OpenWeatherAPI.csproj", "{B8C99B2B-5D00-4CDB-8CAA-76825F396777}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B8C99B2B-5D00-4CDB-8CAA-76825F396777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8C99B2B-5D00-4CDB-8CAA-76825F396777}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8C99B2B-5D00-4CDB-8CAA-76825F396777}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8C99B2B-5D00-4CDB-8CAA-76825F396777}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {49303C13-5630-4081-838B-2CDA7EE214CF}
-	EndGlobalSection
-EndGlobal
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Net.Http;
+using static System.Net.WebRequestMethods;
+
+namespace OpenWeatherAPI
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var client = new HttpClient();
+
+            var key = "94d4e16e903663b6ef1b60417314f4a6";
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Please enter the name of your city: ");
+                var city_name = Console.ReadLine();
+                Console.WriteLine();
+
+                var weatherURL = $"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={key}&units=imperial";
+                try
+                {
+                    var response = client.GetStringAsync(weatherURL).Result;
+                    var formattedResponse = JObject.Parse(response).GetValue("main").ToString();
+                    var temp = JObject.Parse(formattedResponse).GetValue("temp");
+                    Console.WriteLine($"The current temperature is {temp} degrees fahrenheit.");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                AddSpaces(2);
+                Console.WriteLine("Would you like to exit?");
+                var userInput = Console.ReadLine();
+                AddSpaces(2);
+
+                if (userInput.ToLower().Trim() == "yes")
+                {
+                    break;
+                }
+            }
+        }
+        static void AddSpaces(int numberOfSpaces)
+        {
+            while (numberOfSpaces != 0)
+            {
+                Console.WriteLine();
+                numberOfSpaces--;
+            }
+        }
+    }
+}
